@@ -2,6 +2,7 @@ import express from "express"
 import dotenv from "dotenv"
 import { RootController } from "./controllers/root.controller"
 import { MongooseClient } from "./clients/mongoose.client"
+import { ErrorMiddleware } from "./middlewares/error.middleware"
 
 const createAndStartApplication = async () => {
     const APP_ENV = process.env.APP_ENV || "production"
@@ -16,6 +17,8 @@ const createAndStartApplication = async () => {
     const PORT = process.env.PORT || 8080
 
     app.use("/", RootController)
+
+    app.use(ErrorMiddleware)
 
     await MongooseClient.connect()
 
