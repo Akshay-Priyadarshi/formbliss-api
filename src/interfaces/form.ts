@@ -1,7 +1,7 @@
 import { IField } from "./form-field"
 
 export interface IForm {
-    id: string
+    _id: string
     name: string
     label: string
     fields: IField[]
