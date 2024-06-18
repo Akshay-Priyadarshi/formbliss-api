@@ -1,5 +1,5 @@
 <h1>Formbliss</h1>
-<img src="https://github.com/Akshay-Priyadarshi/formbliss-client/blob/main/src/assets/android-chrome-192x192.png?raw=true" alt="LOGO"/>
+<img src="https://github.com/Akshay-Priyadarshi/formbliss-client/blob/main/public/android-chrome-192x192.png?raw=true" alt="LOGO"/>
 <p>
     Formbliss is a saas solution with which you can make dynamic forms on the fly and can be shared with your clients to get information.
 </p>
