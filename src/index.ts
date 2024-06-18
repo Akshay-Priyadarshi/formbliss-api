@@ -1,8 +1,15 @@
 import express, { NextFunction, Request, Response } from "express"
+import dotenv from "dotenv"
 
-function createAndStartApplication() {
-    const PORT = process.env.PORT || 8080
+const createAndStartApplication = async () => {
+    const APP_ENV = process.env.APP_ENV || "production"
+
     const app = express()
+
+    if (APP_ENV === "development") {
+        dotenv.config({ path: ".env" })
+    }
+    const PORT = process.env.PORT || 8080
 
     app.get(
         "/HealthCheck",
@@ -12,7 +19,7 @@ function createAndStartApplication() {
     )
 
     app.listen(PORT, () => {
-        console.log(`Server is running at http://localhost:${PORT} 🚀`)
+        console.log(`Server started at http://localhost:${PORT} 🚀`)
     })
 }
 
