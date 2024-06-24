@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "cockroachdb"
+  url      = env("DATABASE_URL")
+}
+
+model Form {
+  id     String         @id @default(uuid())
+  name   String
+  label  String
+  fields FormFieldMap[] @relation()
+
+  @@map("forms")
+}
+
+model Field {
+  id          String         @id @default(uuid())
+  name        String
+  label       String
+  placeholder String?
+  inputType   InputTypes
+  dataType    DataTypes
+  dataSubType DataTypes?
+  choices     String[]       @default([])
+  regex       String?
+  minLength   Int?
+  maxLength   Int?
+  min         Int?
+  max         Int?
+  fromFields  FieldSelfMap[] @relation("toField")
+  toFields    FieldSelfMap[] @relation("fromField")
+  forms       FormFieldMap[]
+
+  @@map("fields")
+}
+
+model FormFieldMap {
+  formId   String
+  fieldId  String
+  required Boolean? @default(false)
+  order    Int
+  field    Field    @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  form     Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@id([formId, fieldId])
+  @@map("form_field_map")
+}
+
+model FieldSelfMap {
+  fromFieldId String
+  toFieldId   String
+  required    Boolean? @default(false)
+  order       Int
+  fromField   Field    @relation("fromField", fields: [fromFieldId], references: [id], onDelete: Cascade)
+  toField     Field    @relation("toField", fields: [toFieldId], references: [id], onDelete: Cascade)
+
+  @@id([fromFieldId, toFieldId])
+  @@map("field_self_map")
+}
+
+enum InputTypes {
+  BUTTON         @map("button")
+  CHECKBOX       @map("checkbox")
+  COLOR          @map("color")
+  DATE           @map("date")
+  DATETIME_LOCAL @map("datetime-local")
+  EMAIL          @map("email")
+  FILE           @map("file")
+  HIDDEN         @map("hidden")
+  IMAGE          @map("image")
+  MONTH          @map("month")
+  NUMBER         @map("number")
+  PASSWORD       @map("password")
+  RADIO          @map("radio")
+  RANGE          @map("range")
+  RESET          @map("reset")
+  SEARCH         @map("search")
+  SUBMIT         @map("submit")
+  TEL            @map("tel")
+  TEXT           @map("text")
+  TIME           @map("time")
+  URL            @map("url")
+  WEEK           @map("week")
+  ARRAY_INPUT    @map("array-input")
+  OBJECT_INPUT   @map("object-input")
+
+  @@map("input_types")
+}
+
+enum DataTypes {
+  STRING  @map("string")
+  NUMBER  @map("number")
+  BOOLEAN @map("boolean")
+  OBJECT  @map("object")
+  ARRAY   @map("array")
+
+  @@map("data_types")
+}

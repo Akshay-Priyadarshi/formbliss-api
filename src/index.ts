@@ -1,7 +1,6 @@
 import express from "express"
 import dotenv from "dotenv"
 import { RootController } from "./controllers/root.controller"
-import { MongooseClient } from "./clients/mongoose.client"
 import { ErrorMiddleware } from "./middlewares/error.middleware"
 
 const createAndStartApplication = async () => {
@@ -19,8 +18,6 @@ const createAndStartApplication = async () => {
     app.use("/", RootController)
 
     app.use(ErrorMiddleware)
-
-    await MongooseClient.connect()
 
     app.listen(PORT, () => {
         console.log(`Server started at http://localhost:${PORT} 🚀`)
