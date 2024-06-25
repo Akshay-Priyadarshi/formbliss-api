@@ -1,45 +1,79 @@
-import { Form } from "../models/form.model"
-import { IForm } from "../interfaces/form"
+import { Field, Form, Prisma } from "@prisma/client"
+import { prismaClient } from "../clients/prisma.client"
 import { BadRequestError } from "../errors/bad-request.error"
-import { isValidObjectId } from "mongoose"
 
 export class FormService {
-    readForm = async (formId?: string): Promise<IForm | IForm[]> => {
-        let formReadRes: IForm | IForm[]
-        if (formId) {
-            if (isValidObjectId(formId) === false) {
-                throw new BadRequestError("Invalid form ID!")
+    async create(
+        formData: Form,
+        nestedFields: (Field | string)[]
+    ): Promise<Form> {
+        return await prismaClient.form.create({
+            data: {
+                ...formData,
+                fields: {
+                    create: nestedFields.map(
+                        (nestedField: string | Field, i) => {
+                            if (typeof nestedField === "string") {
+                                return {
+                                    field: {
+                                        connect: {
+                                            id: nestedField
+                                        }
+                                    },
+                                    order: i + 1
+                                }
+                            }
+                            return {
+                                field: {
+                                    create: {
+                                        ...nestedField
+                                    }
+                                },
+                                order: i + 1
+                            }
+                        }
+                    )
+                }
+            },
+            include: {
+                fields: { include: { field: true } }
             }
-            const formReadResOrNull = await Form.findById(formId)
-            if (formReadResOrNull === null) {
-                throw new BadRequestError("Form not found!")
-            }
-            formReadRes = formReadResOrNull
+        })
+    }
+
+    async read(
+        id?: string,
+        filterDto: Prisma.FormWhereInput = {}
+    ): Promise<Form[] | Form | null> {
+        if (id) {
+            const foundForm = await prismaClient.form.findUnique({
+                where: { id },
+                include: {
+                    fields: { include: { field: true } }
+                }
+            })
+            if (!foundForm) throw new BadRequestError("Field not found!")
+            return foundForm
         } else {
-            formReadRes = await Form.find({})
+            return await prismaClient.form.findMany({
+                where: filterDto,
+                include: {
+                    fields: { include: { field: true } }
+                }
+            })
         }
-        return formReadRes
     }
 
-    createForm = async (createFormDto: IForm): Promise<IForm> => {
-        const formCreateRes = await Form.create(createFormDto)
-        return formCreateRes
+    async update(id: string, updateDto: Prisma.FormUpdateInput): Promise<Form> {
+        return await prismaClient.form.update({
+            where: { id },
+            data: updateDto
+        })
     }
 
-    updateForm = async (
-        formId: string,
-        updateFormDto: IForm
-    ): Promise<IForm | null> => {
-        const formUpdateRes = await Form.findByIdAndUpdate(
-            formId,
-            updateFormDto,
-            { new: true }
-        )
-        return formUpdateRes
-    }
-
-    deleteForm = async (formId: string): Promise<IForm | null> => {
-        const formUpdateRes = await Form.findByIdAndDelete(formId)
-        return formUpdateRes
+    async delete(id: string): Promise<Form> {
+        return await prismaClient.form.delete({
+            where: { id }
+        })
     }
 }

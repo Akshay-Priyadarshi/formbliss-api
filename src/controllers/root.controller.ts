@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express"
 import { FieldController } from "./field.controller"
 import { FieldService } from "../services/field.service"
 import { ApiResponse } from "../models/response.model"
+import { FormController } from "./form.controller"
 
 export const RootController = Router()
 
@@ -14,3 +15,4 @@ RootController.get(
 )
 
 RootController.use("/fields", new FieldController().router)
+RootController.use("/forms", new FormController().router)
