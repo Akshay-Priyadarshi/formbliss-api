@@ -17,22 +17,23 @@ model Form {
 }
 
 model Field {
-  id          String         @id @default(uuid())
-  name        String
-  label       String
-  placeholder String?
-  inputType   InputTypes
-  dataType    DataTypes
-  dataSubType DataTypes?
-  choices     String[]       @default([])
-  regex       String?
-  minLength   Int?
-  maxLength   Int?
-  min         Int?
-  max         Int?
-  fromFields  FieldSelfMap[] @relation("toField")
-  toFields    FieldSelfMap[] @relation("fromField")
-  forms       FormFieldMap[]
+  id            String         @id @default(uuid())
+  name          String
+  label         String
+  placeholder   String?
+  inputType     InputTypes
+  dataType      DataTypes
+  dataSubType   DataTypes?
+  choices       String[]       @default([])
+  regex         String?
+  minLength     Int?
+  maxLength     Int?
+  min           Int?
+  max           Int?
+  parentFieldId String?
+  parentField   Field?         @relation("FieldParent", fields: [parentFieldId], references: [id])
+  nestedFields  Field[]        @relation("FieldParent")
+  forms         FormFieldMap[]
 
   @@map("fields")
 }
@@ -47,18 +48,6 @@ model FormFieldMap {
 
   @@id([formId, fieldId])
   @@map("form_field_map")
-}
-
-model FieldSelfMap {
-  fromFieldId String
-  toFieldId   String
-  required    Boolean? @default(false)
-  order       Int
-  fromField   Field    @relation("fromField", fields: [fromFieldId], references: [id], onDelete: Cascade)
-  toField     Field    @relation("toField", fields: [toFieldId], references: [id], onDelete: Cascade)
-
-  @@id([fromFieldId, toFieldId])
-  @@map("field_self_map")
 }
 
 enum InputTypes {

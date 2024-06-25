@@ -28,10 +28,7 @@ export class FieldController {
 
     async createField(req: Request, res: Response, next: NextFunction) {
         try {
-            const field = await this.service.createField(
-                req.body.field,
-                req.body.nestedFields
-            )
+            const field = await this.service.createField(req.body)
             const apiResponse = new ApiResponse(
                 "Field created successfully!",
                 201,

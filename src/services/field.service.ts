@@ -3,10 +3,7 @@ import { DataTypes, Field, InputTypes, Prisma } from "@prisma/client"
 import { BadRequestError } from "../errors/bad-request.error"
 
 export class FieldService {
-    async createField(
-        field: Field,
-        nestedFields?: (Field | string)[]
-    ): Promise<Field> {
+    async createField(field: Field): Promise<Field> {
         const createdField = await prismaClient.field.create({
             data: {
                 ...field,
@@ -14,40 +11,9 @@ export class FieldService {
                 inputType: InputTypes[field.inputType],
                 dataSubType: field.dataSubType
                     ? DataTypes[field.dataSubType]
-                    : undefined,
-                toFields: nestedFields
-                    ? {
-                          create: nestedFields.map(
-                              (nestedField: Field | string, i: number) => {
-                                  if (typeof nestedField === "string") {
-                                      return {
-                                          toField: {
-                                              connect: { id: nestedField }
-                                          },
-                                          order: i + 1
-                                      }
-                                  }
-                                  return {
-                                      toField: {
-                                          create: {
-                                              ...nestedField,
-                                              dataType:
-                                                  DataTypes[field.dataType],
-                                              inputType:
-                                                  InputTypes[field.inputType],
-                                              dataSubType: field.dataSubType
-                                                  ? DataTypes[field.dataSubType]
-                                                  : undefined
-                                          }
-                                      },
-                                      order: i + 1
-                                  }
-                              }
-                          )
-                      }
                     : undefined
             },
-            include: { toFields: { include: { toField: true } } }
+            include: { nestedFields: true }
         })
         return createdField
     }
@@ -60,7 +26,7 @@ export class FieldService {
             const foundField = await prismaClient.field.findUnique({
                 where: { id },
                 include: {
-                    toFields: { include: { toField: true } }
+                    nestedFields: true
                 }
             })
             if (!foundField) throw new BadRequestError("Field not found!")
@@ -69,7 +35,7 @@ export class FieldService {
             return await prismaClient.field.findMany({
                 where: filter,
                 include: {
-                    toFields: { include: { toField: true } }
+                    nestedFields: true
                 }
             })
         }
@@ -81,11 +47,15 @@ export class FieldService {
     ): Promise<Field> {
         return prismaClient.field.update({
             where: { id },
-            data
+            data,
+            include: { nestedFields: true }
         })
     }
 
     async deleteField(id: string): Promise<Field> {
-        return prismaClient.field.delete({ where: { id } })
+        return prismaClient.field.delete({
+            where: { id },
+            include: { nestedFields: true }
+        })
     }
 }
