@@ -8,10 +8,12 @@ datasource db {
 }
 
 model Form {
-  id     String         @id @default(uuid())
-  name   String
-  label  String
-  fields FormFieldMap[] @relation()
+  id        String         @id @default(uuid())
+  name      String
+  label     String
+  fields    FormFieldMap[] @relation()
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
 
   @@map("forms")
 }
@@ -34,6 +36,8 @@ model Field {
   parentField   Field?         @relation("FieldParent", fields: [parentFieldId], references: [id])
   nestedFields  Field[]        @relation("FieldParent")
   forms         FormFieldMap[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
   @@map("fields")
 }
