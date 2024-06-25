@@ -2,11 +2,14 @@ import express from "express"
 import dotenv from "dotenv"
 import { RootController } from "./controllers/root.controller"
 import { ErrorMiddleware } from "./middlewares/error.middleware"
+import cors from "cors"
 
 const createAndStartApplication = async () => {
     const APP_ENV = process.env.APP_ENV || "production"
 
     const app = express()
+
+    app.use(cors())
 
     app.use(express.json())
 
